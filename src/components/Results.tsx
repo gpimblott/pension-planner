@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -18,26 +20,56 @@ interface ChartData {
     value: number;
     contributions: number;
     growth: number;
+    withdrawals: number;
 }
 
 function transformPensionDataForChart(
     pensionData: Array<{ age: number; potValue: number }>,
+    currentAge: number,
+    retirementAge: number,
     currentPot: number,
     monthlyContribution: number,
-    employerContribution: number
+    employerContribution: number,
+    annualRetirementSpending: number,
+    statePensionIncome: number,
+    inflationRate: number
 ): ChartData[] {
     const annualContribution = (monthlyContribution + employerContribution) * 12;
+    const yearsUntilRetirement = retirementAge - currentAge;
+    const totalContributionsAtRetirement = currentPot + (yearsUntilRetirement * annualContribution);
+    const netAnnualWithdrawal = annualRetirementSpending - statePensionIncome;
+
+    let cumulativeWithdrawals = 0;
+    let currentAnnualSpending = annualRetirementSpending;
 
     return pensionData.map((point, index) => {
-        const yearsSinceStart = index;
-        const totalContributions = currentPot + (yearsSinceStart * annualContribution);
-        const growth = Math.max(0, point.potValue - totalContributions);
+        const yearsSinceStart = point.age - currentAge;
+        const isRetired = point.age >= retirementAge;
+        const yearsSinceRetirement = isRetired ? point.age - retirementAge : 0;
+
+        // Contributions stop at retirement
+        const totalContributions = isRetired
+            ? totalContributionsAtRetirement
+            : currentPot + (yearsSinceStart * annualContribution);
+
+        // Calculate cumulative withdrawals with inflation adjustment
+        if (isRetired && point.age > retirementAge) {
+            // Adjust spending for inflation each year
+            currentAnnualSpending = annualRetirementSpending * Math.pow(1 + inflationRate / 100, yearsSinceRetirement - 1);
+            const netWithdrawal = currentAnnualSpending - statePensionIncome;
+            cumulativeWithdrawals += netWithdrawal;
+        }
+
+        // potValue already has withdrawals deducted by calculatePension
+        // Growth = (current pot value + withdrawals taken) - contributions
+        const growth = Math.max(0, point.potValue + cumulativeWithdrawals - totalContributions);
 
         return {
             year: point.age,
-            value: point.potValue,
+            value: point.potValue, // This is the actual remaining value after withdrawals
             contributions: totalContributions,
             growth: growth,
+            withdrawals: cumulativeWithdrawals,
         };
     });
 }
@@ -72,8 +104,18 @@ export default function Results({
     }, [currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, expectedReturn, annualRetirementSpending, postRetirementGrowth]);
 
     const chartData = useMemo(() =>
-            transformPensionDataForChart(pensionData, currentPot, monthlyContribution, employerContribution),
-        [pensionData, currentPot, monthlyContribution, employerContribution]
+            transformPensionDataForChart(
+                pensionData,
+                currentAge,
+                retirementAge,
+                currentPot,
+                monthlyContribution,
+                employerContribution,
+                annualRetirementSpending,
+                11500,
+                2.5
+            ),
+        [pensionData, currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, annualRetirementSpending]
     );
 
     const { projectedRetirementPotValue, ageFundsRunOut, totalYearsFundLasts, shortfallSurplus } = useMemo(() => {
@@ -126,12 +168,12 @@ export default function Results({
                     <PensionChart data={chartData}/>
                     <div className="mt-8 space-y-4">
                         <div>
-                            <label htmlFor="annualRetirementSpendingSlider" className="block text-sm font-medium text-gray-700">Retirement Spending: {Number(annualRetirementSpending).toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</label>
-                            <input type="range" id="annualRetirementSpendingSlider" min="10000" max="100000" step="1000" value={Number(annualRetirementSpending)} onChange={handleSliderChange(setAnnualRetirementSpending)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
+                            <label htmlFor="annualRetirementSpendingSlider" className="block text-sm font-medium text-gray-700">Retirement Spending: {annualRetirementSpending.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</label>
+                            <input type="range" id="annualRetirementSpendingSlider" min="10000" max="100000" step="1000" value={annualRetirementSpending} onChange={handleSliderChange(setAnnualRetirementSpending)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
                         </div>
                         <div>
                             <label htmlFor="postRetirementGrowthSlider" className="block text-sm font-medium text-gray-700">Post-Retirement Growth: {postRetirementGrowth}%</label>
-                            <input type="range" id="postRetirementGrowthSlider" min="0" max="10" step="0.1" value={Number(postRetirementGrowth)} onChange={handleSliderChange(setPostRetirementGrowth)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
+                            <input type="range" id="postRetirementGrowthSlider" min="0" max="10" step="0.1" value={postRetirementGrowth} onChange={handleSliderChange(setPostRetirementGrowth)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
                         </div>
                     </div>
                 </div>
