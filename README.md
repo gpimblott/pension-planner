@@ -1,8 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Simple Pension Planner
+
+This project is a simple pension planner application built with Next.js. It allows users to input their current age, retirement age, current pension pot, monthly contributions (personal and employer), expected annual return, and details of multiple pensions (including state pension). The application then projects the pension pot value over time, visualizes it in a graph, and provides key metrics like projected retirement pot value, age when funds run out, and overall outcome (shortfall/surplus).
+
+User-entered details are stored in a cookie to persist data across sessions.
+
+## Features
+
+-   **Personalized Projections:** Input various financial details to get a tailored pension projection.
+-   **Multiple Pensions:** Add and manage multiple pension sources, including the state pension.
+-   **Interactive Graph:** Visualize your pension pot's growth, contributions, withdrawals, and pension income over time.
+-   **Key Metrics:** See important figures like projected retirement pot value, fund duration, and potential shortfalls or surpluses.
+-   **Persistent Data:** User inputs are saved in a cookie, so your data is available when you return.
+-   **Reset Functionality:** Easily clear all saved data and reset the form to default values.
 
 ## Getting Started
 
-First, run the development server:
+To run the project locally, follow these steps:
+
+### Prerequisites
+
+Make sure you have Node.js and npm (or yarn, pnpm, bun) installed on your machine.
+
+### Installation
+
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/your-username/pension-planner.git
+    cd pension-planner
+    ```
+2.  Install the dependencies:
+    ```bash
+    npm install
+    # or
+    yarn install
+    # or
+    pnpm install
+    # or
+    bun install
+    ```
+
+### Running the Development Server
+
+To start the development server:
 
 ```bash
 npm run dev
@@ -14,23 +53,34 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The page will hot-reload as you make changes.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Building for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To build the application for production:
 
-## Learn More
+```bash
+npm run build
+# or
+yarn build
+# or
+pnpm build
+# or
+bun build
+```
 
-To learn more about Next.js, take a look at the following resources:
+This command compiles the application into an optimized build.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Starting the Production Server
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+To start the production server after building:
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run start
+# or
+yarn start
+# or
+pnpm start
+# or
+bun start
+```
