@@ -5,6 +5,7 @@
 
 import { useState, useMemo } from "react";
 import PensionChart from "./PensionChart";
+import PensionTable from "./PensionTable"; // Import the new component
 import { calculatePension } from "@/lib/pensionCalculator";
 
 interface Pension {
@@ -112,6 +113,7 @@ export default function Results({
     const [annualRetirementSpending, setAnnualRetirementSpending] = useState(30000);
     const [postRetirementGrowth, setPostRetirementGrowth] = useState(3);
     const [inflationRate, setInflationRate] = useState(2.5);
+    const [showTable, setShowTable] = useState(false); // New state for toggling view
 
     const pensionData = useMemo(() => {
         const annualContribution = (monthlyContribution + employerContribution) * 12;
@@ -164,6 +166,10 @@ export default function Results({
         setter(Number(e.target.value));
     };
 
+    const handleDownloadCsv = () => {
+        downloadCsv(chartData, "pension_projection.csv");
+    };
+
     return (
         <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Projection</h2>
@@ -206,9 +212,61 @@ export default function Results({
                     </div>
                 </div>
                 <div className="mt-6">
-                  <PensionChart data={chartData}/>
+                    <div className="flex justify-center space-x-4 mb-4">
+                        <button
+                            onClick={() => setShowTable(false)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium ${!showTable ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
+                        >
+                            View Chart
+                        </button>
+                        <button
+                            onClick={() => setShowTable(true)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium ${showTable ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}`}
+                        >
+                            View Table
+                        </button>
+                        <button
+                            onClick={handleDownloadCsv}
+                            className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-800 hover:bg-gray-300"
+                        >
+                            Download CSV
+                        </button>
+                    </div>
+                    {showTable ? (
+                        <PensionTable data={chartData} />
+                    ) : (
+                        <PensionChart data={chartData}/>
+                    )}
                 </div>
             </div>
         </div>
     );
+}
+
+function downloadCsv(data: ChartData[], filename: string) {
+    const headers = ["Year", "Projected Value (£)", "Total Contributions (£)", "Cumulative Withdrawals (£)", "Cumulative Pension Income (£)"];
+    const rows = data.map(row => [
+        row.year,
+        row.value.toFixed(2),
+        row.contributions.toFixed(2),
+        row.withdrawals.toFixed(2),
+        row.pensionIncome.toFixed(2),
+    ]);
+
+    const csvContent = [
+        headers.join(","),
+        ...rows.map(e => e.join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) { // feature detection
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 }

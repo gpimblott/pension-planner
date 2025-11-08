@@ -70,7 +70,7 @@ export default function PensionChart({ data }: PensionChartProps) {
                         stroke="#9ca3af"
                     />
                     <YAxis
-                        label={{ value: "Value (£)", angle: -90, position: "insideLeft" }}
+                        label={{ value: "Value (£)", angle: -90, position: "insideLeft", offset: -15 }}
                         tick={{ fill: "#6b7280", fontSize: 14 }}
                         stroke="#9ca3af"
                         tickFormatter={(value) => `£${(value / 1000).toFixed(0)}k`}

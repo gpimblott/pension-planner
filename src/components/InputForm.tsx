@@ -263,7 +263,6 @@ export default function InputForm() {
                                     value={pension.name}
                                     onChange={(e) => handlePensionChange(index, 'name', e.target.value)}
                                     className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
-                                    readOnly={index === 0}
                                 />
                                 <input
                                     type="number"
@@ -277,11 +276,9 @@ export default function InputForm() {
                                     onChange={(e) => handlePensionChange(index, 'startAge', e.target.value)}
                                     className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
                                 />
-                                {index > 0 && (
-                                    <button type="button" onClick={() => removePension(index)} className="text-red-500 hover:text-red-700">
-                                        &times;
-                                    </button>
-                                )}
+                                <button type="button" onClick={() => removePension(index)} className="text-red-500 hover:text-red-700">
+                                    &times;
+                                </button>
                             </div>
                         ))}
                         <button type="button" onClick={addPension} className="text-sm text-blue-600 hover:underline">Add another pension</button>

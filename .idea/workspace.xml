@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e82fc1c0-9be7-44dd-afd8-024ab91d6b79" name="Changes" comment="Update the documentation" />
+    <list default="true" id="e82fc1c0-9be7-44dd-afd8-024ab91d6b79" name="Changes" comment="Add a disclaimer to the pag" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -102,7 +102,7 @@
       <updated>1762285494877</updated>
       <workItem from="1762285495870" duration="10470000" />
       <workItem from="1762550205969" duration="737000" />
-      <workItem from="1762551594899" duration="7367000" />
+      <workItem from="1762551594899" duration="7847000" />
     </task>
     <task id="LOCAL-00001" summary="Intiial commit">
       <option name="closed" value="true" />
@@ -184,7 +184,23 @@
       <option name="project" value="LOCAL" />
       <updated>1762633666815</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Add a disclaimer to the pag">
+      <option name="closed" value="true" />
+      <created>1762634039735</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1762634039735</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Add a disclaimer to the pag">
+      <option name="closed" value="true" />
+      <created>1762634432530</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1762634432530</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -197,6 +213,7 @@
     <MESSAGE value="tidy up display&#10;Multiple manually added pensions" />
     <MESSAGE value="Change icon and comment code" />
     <MESSAGE value="Update the documentation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update the documentation" />
+    <MESSAGE value="Add a disclaimer to the pag" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add a disclaimer to the pag" />
   </component>
 </project>
