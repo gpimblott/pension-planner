@@ -12,6 +12,8 @@ export default function InputForm() {
     const [monthlyContribution, setMonthlyContribution] = useState(500);
     const [employerContribution, setEmployerContribution] = useState(250);
     const [expectedReturn, setExpectedReturn] = useState(5);
+    const [statePensionAmount, setStatePensionAmount] = useState(11500);
+    const [statePensionAge, setStatePensionAge] = useState(67);
     const [showResults, setShowResults] = useState(false);
 
     const handleNumberInput = (setter: (value: number) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,6 +138,38 @@ export default function InputForm() {
                             />
                             <p className="text-sm text-gray-500">{expectedReturn}% annual growth</p>
                         </div>
+
+                        {/* State Pension Amount */}
+                        <div className="space-y-3">
+                            <label className="block text-lg font-semibold text-gray-700">
+                                State Pension Amount (£)
+                            </label>
+                            <input
+                                type="number"
+                                value={statePensionAmount || ""}
+                                onChange={handleNumberInput(setStatePensionAmount)}
+                                className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all"
+                                min="0"
+                                step="100"
+                            />
+                            <p className="text-sm text-gray-500">£{statePensionAmount.toLocaleString()} per year</p>
+                        </div>
+
+                        {/* State Pension Age */}
+                        <div className="space-y-3">
+                            <label className="block text-lg font-semibold text-gray-700">
+                                State Pension Age
+                            </label>
+                            <input
+                                type="number"
+                                value={statePensionAge || ""}
+                                onChange={handleNumberInput(setStatePensionAge)}
+                                className="w-full px-5 py-4 text-lg border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all"
+                                min="60"
+                                max="75"
+                            />
+                            <p className="text-sm text-gray-500">Age: {statePensionAge} years</p>
+                        </div>
                     </div>
 
                     <div className="pt-6">
@@ -157,6 +191,8 @@ export default function InputForm() {
                     monthlyContribution={monthlyContribution}
                     employerContribution={employerContribution}
                     expectedReturn={expectedReturn}
+                    statePensionAmount={statePensionAmount}
+                    statePensionAge={statePensionAge}
                 />
             )}
         </div>

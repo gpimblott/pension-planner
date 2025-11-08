@@ -1,5 +1,6 @@
 
 
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -13,6 +14,8 @@ interface ResultsProps {
     monthlyContribution: number;
     employerContribution: number;
     expectedReturn: number;
+    statePensionAmount: number;
+    statePensionAge: number;
 }
 
 interface ChartData {
@@ -32,37 +35,41 @@ function transformPensionDataForChart(
     employerContribution: number,
     annualRetirementSpending: number,
     statePensionIncome: number,
-    inflationRate: number
+    inflationRate: number,
+    statePensionAge: number
 ): ChartData[] {
     const annualContribution = (monthlyContribution + employerContribution) * 12;
     const yearsUntilRetirement = retirementAge - currentAge;
     const totalContributionsAtRetirement = currentPot + (yearsUntilRetirement * annualContribution);
-    const netAnnualWithdrawal = annualRetirementSpending - statePensionIncome;
 
     let cumulativeWithdrawals = 0;
     let currentAnnualSpending = annualRetirementSpending;
 
     return pensionData.map((point, index) => {
-        const yearsSinceStart = point.age - currentAge;
         const isRetired = point.age >= retirementAge;
         const yearsSinceRetirement = isRetired ? point.age - retirementAge : 0;
 
-        // Contributions stop at retirement
+        // Contributions accumulate at the end of each year
+        // For age X, we've completed (X - currentAge) years of contributions
+        const yearsCompleted = point.age - currentAge;
         const totalContributions = isRetired
             ? totalContributionsAtRetirement
-            : currentPot + (yearsSinceStart * annualContribution);
+            : currentPot + (yearsCompleted * annualContribution);
 
         // Calculate cumulative withdrawals with inflation adjustment
         if (isRetired && point.age > retirementAge) {
             // Adjust spending for inflation each year
             currentAnnualSpending = annualRetirementSpending * Math.pow(1 + inflationRate / 100, yearsSinceRetirement - 1);
-            const netWithdrawal = currentAnnualSpending - statePensionIncome;
+            let netWithdrawal = currentAnnualSpending;
+            if (point.age >= statePensionAge) {
+                netWithdrawal -= statePensionIncome;
+            }
             cumulativeWithdrawals += netWithdrawal;
         }
 
         // potValue already has withdrawals deducted by calculatePension
         // Growth = (current pot value + withdrawals taken) - contributions
-        const growth = Math.max(0, point.potValue + cumulativeWithdrawals - totalContributions);
+        const growth = Math.max(0, point.potValue - totalContributions);
 
         return {
             year: point.age,
@@ -81,9 +88,12 @@ export default function Results({
                                     monthlyContribution,
                                     employerContribution,
                                     expectedReturn,
+                                    statePensionAmount,
+                                    statePensionAge,
                                 }: ResultsProps) {
     const [annualRetirementSpending, setAnnualRetirementSpending] = useState(30000);
     const [postRetirementGrowth, setPostRetirementGrowth] = useState(3);
+    const [inflationRate, setInflationRate] = useState(2.5);
 
     const pensionData = useMemo(() => {
         const annualContribution = (monthlyContribution + employerContribution) * 12;
@@ -96,12 +106,13 @@ export default function Results({
             annualRetirementSpending,
             preRetirementGrowth: expectedReturn,
             postRetirementGrowth,
-            inflationRate: 2.5,
-            statePensionIncome: 11500,
+            inflationRate,
+            statePensionIncome: statePensionAmount,
+            statePensionAge: statePensionAge,
             annualPreRetirementIncome: annualContribution,
             contributionRate: 100,
         });
-    }, [currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, expectedReturn, annualRetirementSpending, postRetirementGrowth]);
+    }, [currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, expectedReturn, annualRetirementSpending, postRetirementGrowth, inflationRate, statePensionAmount, statePensionAge]);
 
     const chartData = useMemo(() =>
             transformPensionDataForChart(
@@ -112,18 +123,18 @@ export default function Results({
                 monthlyContribution,
                 employerContribution,
                 annualRetirementSpending,
-                11500,
-                2.5
+                statePensionAmount,
+                inflationRate,
+                statePensionAge
             ),
-        [pensionData, currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, annualRetirementSpending]
+        [pensionData, currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, annualRetirementSpending, inflationRate, statePensionAmount, statePensionAge]
     );
 
     const { projectedRetirementPotValue, ageFundsRunOut, totalYearsFundLasts, shortfallSurplus } = useMemo(() => {
         const retirementPot = pensionData.find(d => d.age === retirementAge)?.potValue || 0;
-        const lastNonZeroEntry = pensionData.findLast(d => d.potValue > 0);
-        const fundsRunOutAge = lastNonZeroEntry ? (lastNonZeroEntry.age < 90 ? lastNonZeroEntry.age : null) : retirementAge;
-        const yearsFundLasts = fundsRunOutAge ? fundsRunOutAge - retirementAge : 90 - retirementAge;
-        const surplus = fundsRunOutAge === null || fundsRunOutAge >= 90 ? 'Surplus' : 'Shortfall';
+        const fundsRunOutAge = pensionData.find(d => d.potValue === 0)?.age || 90;
+        const yearsFundLasts = fundsRunOutAge - retirementAge;
+        const surplus = fundsRunOutAge >= 90 ? 'Surplus' : 'Shortfall';
 
         return {
             projectedRetirementPotValue: retirementPot,
@@ -154,7 +165,7 @@ export default function Results({
                         </div>
                         <div className="p-3 border rounded-lg">
                             <p className="text-sm font-medium text-gray-600">Funds Run Out</p>
-                            <p className="text-lg font-bold text-blue-600">{ageFundsRunOut || 'Never'}</p>
+                            <p className="text-lg font-bold text-blue-600">{ageFundsRunOut >= 90 ? 'Never' : ageFundsRunOut}</p>
                         </div>
                         <div className="p-3 border rounded-lg">
                             <p className="text-sm font-medium text-gray-600">Fund Duration</p>
@@ -174,6 +185,10 @@ export default function Results({
                         <div>
                             <label htmlFor="postRetirementGrowthSlider" className="block text-sm font-medium text-gray-700">Post-Retirement Growth: {postRetirementGrowth}%</label>
                             <input type="range" id="postRetirementGrowthSlider" min="0" max="10" step="0.1" value={postRetirementGrowth} onChange={handleSliderChange(setPostRetirementGrowth)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
+                        </div>
+                        <div>
+                            <label htmlFor="inflationRateSlider" className="block text-sm font-medium text-gray-700">Inflation Rate: {inflationRate}%</label>
+                            <input type="range" id="inflationRateSlider" min="0" max="10" step="0.1" value={inflationRate} onChange={handleSliderChange(setInflationRate)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
                         </div>
                     </div>
                 </div>
