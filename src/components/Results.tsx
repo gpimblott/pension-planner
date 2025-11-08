@@ -228,25 +228,23 @@ export default function Results({
                         <input id="gkToggle" type="checkbox" className="h-4 w-4 accent-blue-600" checked={gkEnabled} onChange={(e) => setGkEnabled(e.target.checked)} />
                         <label htmlFor="gkToggle" className="text-xs font-medium text-gray-700">Dynamic withdrawals (Guyton–Klinger)</label>
                     </div>
-                    {gkEnabled && (
-                        <div className="space-y-2 bg-gray-50 rounded-lg p-3">
-                            <p className="text-[11px] text-gray-600">When enabled: spending is inflation‑linked except after a loss year (optional), and adjusts by an amount when the withdrawal rate breaches your guardrails.</p>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div>
-                                    <label htmlFor="gkBand" className="block text-xs font-medium text-gray-700 mb-1">Guardrail band (±% around initial WR): {gkBandWidthPct}%</label>
-                                    <input id="gkBand" type="range" min={5} max={40} step={1} value={gkBandWidthPct} onChange={(e)=> setGkBandWidthPct(Math.min(40, Math.max(5, Number(e.target.value))))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                                </div>
-                                <div>
-                                    <label htmlFor="gkAdjust" className="block text-xs font-medium text-gray-700 mb-1">Spending adjustment step: {gkAdjustmentPct}%</label>
-                                    <input id="gkAdjust" type="range" min={5} max={20} step={1} value={gkAdjustmentPct} onChange={(e)=> setGkAdjustmentPct(Math.min(20, Math.max(5, Number(e.target.value))))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                                </div>
-                                <div className="flex items-center gap-2 pt-5 sm:pt-0">
-                                    <input id="gkSkipLoss" type="checkbox" className="h-4 w-4 accent-blue-600" checked={gkSkipInflationOnLoss} onChange={(e)=> setGkSkipInflationOnLoss(e.target.checked)} />
-                                    <label htmlFor="gkSkipLoss" className="text-xs font-medium text-gray-700">Skip inflation increase after a loss year</label>
-                                </div>
+                    <div className={`space-y-2 bg-gray-50 rounded-lg p-3 ${!gkEnabled ? 'opacity-60' : ''}`} aria-disabled={!gkEnabled}>
+                        <p className="text-[11px] text-gray-600">When enabled: spending is inflation‑linked except after a loss year (optional), and adjusts by an amount when the withdrawal rate breaches your guardrails.</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label htmlFor="gkBand" className="block text-xs font-medium text-gray-700 mb-1">Guardrail band (±% around initial WR): {gkBandWidthPct}%</label>
+                                <input id="gkBand" type="range" min={5} max={40} step={1} value={gkBandWidthPct} onChange={(e)=> setGkBandWidthPct(Math.min(40, Math.max(5, Number(e.target.value))))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" disabled={!gkEnabled} />
+                            </div>
+                            <div>
+                                <label htmlFor="gkAdjust" className="block text-xs font-medium text-gray-700 mb-1">Spending adjustment step: {gkAdjustmentPct}%</label>
+                                <input id="gkAdjust" type="range" min={5} max={20} step={1} value={gkAdjustmentPct} onChange={(e)=> setGkAdjustmentPct(Math.min(20, Math.max(5, Number(e.target.value))))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" disabled={!gkEnabled} />
+                            </div>
+                            <div className="flex items-center gap-2 pt-5 sm:pt-0">
+                                <input id="gkSkipLoss" type="checkbox" className="h-4 w-4 accent-blue-600" checked={gkSkipInflationOnLoss} onChange={(e)=> setGkSkipInflationOnLoss(e.target.checked)} disabled={!gkEnabled} />
+                                <label htmlFor="gkSkipLoss" className="text-xs font-medium text-gray-700">Skip inflation increase after a loss year</label>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
                 <div className="mt-6">
                     <div className="flex justify-center space-x-4 mb-4">
