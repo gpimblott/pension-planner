@@ -7,6 +7,12 @@ import { useState, useMemo } from "react";
 import PensionChart from "./PensionChart";
 import { calculatePension } from "@/lib/pensionCalculator";
 
+interface Pension {
+    name: string;
+    amount: number;
+    startAge: number;
+}
+
 interface ResultsProps {
     currentAge: number;
     retirementAge: number;
@@ -14,8 +20,7 @@ interface ResultsProps {
     monthlyContribution: number;
     employerContribution: number;
     expectedReturn: number;
-    statePensionAmount: number;
-    statePensionAge: number;
+    pensions: Pension[];
 }
 
 interface ChartData {
@@ -34,9 +39,8 @@ function transformPensionDataForChart(
     monthlyContribution: number,
     employerContribution: number,
     annualRetirementSpending: number,
-    statePensionIncome: number,
+    pensions: Pension[],
     inflationRate: number,
-    statePensionAge: number
 ): ChartData[] {
     const annualContribution = (monthlyContribution + employerContribution) * 12;
     const yearsUntilRetirement = retirementAge - currentAge;
@@ -61,9 +65,11 @@ function transformPensionDataForChart(
             // Adjust spending for inflation each year
             currentAnnualSpending = annualRetirementSpending * Math.pow(1 + inflationRate / 100, yearsSinceRetirement - 1);
             let netWithdrawal = currentAnnualSpending;
-            if (point.age >= statePensionAge) {
-                netWithdrawal -= statePensionIncome;
-            }
+            pensions.forEach(pension => {
+                if (point.age >= pension.startAge) {
+                    netWithdrawal -= pension.amount;
+                }
+            });
             cumulativeWithdrawals += netWithdrawal;
         }
 
@@ -88,8 +94,7 @@ export default function Results({
                                     monthlyContribution,
                                     employerContribution,
                                     expectedReturn,
-                                    statePensionAmount,
-                                    statePensionAge,
+                                    pensions,
                                 }: ResultsProps) {
     const [annualRetirementSpending, setAnnualRetirementSpending] = useState(30000);
     const [postRetirementGrowth, setPostRetirementGrowth] = useState(3);
@@ -107,12 +112,11 @@ export default function Results({
             preRetirementGrowth: expectedReturn,
             postRetirementGrowth,
             inflationRate,
-            statePensionIncome: statePensionAmount,
-            statePensionAge: statePensionAge,
+            pensions,
             annualPreRetirementIncome: annualContribution,
             contributionRate: 100,
         });
-    }, [currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, expectedReturn, annualRetirementSpending, postRetirementGrowth, inflationRate, statePensionAmount, statePensionAge]);
+    }, [currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, expectedReturn, annualRetirementSpending, postRetirementGrowth, inflationRate, pensions]);
 
     const chartData = useMemo(() =>
             transformPensionDataForChart(
@@ -123,11 +127,10 @@ export default function Results({
                 monthlyContribution,
                 employerContribution,
                 annualRetirementSpending,
-                statePensionAmount,
+                pensions,
                 inflationRate,
-                statePensionAge
             ),
-        [pensionData, currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, annualRetirementSpending, inflationRate, statePensionAmount, statePensionAge]
+        [pensionData, currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, annualRetirementSpending, inflationRate, pensions]
     );
 
     const { projectedRetirementPotValue, ageFundsRunOut, totalYearsFundLasts, shortfallSurplus } = useMemo(() => {
@@ -149,52 +152,50 @@ export default function Results({
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-8 text-gray-800">Results</h2>
-            {pensionData.length > 0 ? (
-                <div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-center">
-                        <div className="p-3 border rounded-lg">
-                            <p className="text-sm font-medium text-gray-600">Retirement Pot</p>
-                            <p className="text-lg font-bold text-blue-600">{projectedRetirementPotValue?.toLocaleString('en-GB', {
-                                style: 'currency',
-                                currency: 'GBP',
-                                minimumFractionDigits: 0,
-                                maximumFractionDigits: 0
-                            })}</p>
-                        </div>
-                        <div className="p-3 border rounded-lg">
-                            <p className="text-sm font-medium text-gray-600">Funds Run Out</p>
-                            <p className="text-lg font-bold text-blue-600">{ageFundsRunOut >= 90 ? 'Never' : ageFundsRunOut}</p>
-                        </div>
-                        <div className="p-3 border rounded-lg">
-                            <p className="text-sm font-medium text-gray-600">Fund Duration</p>
-                            <p className="text-lg font-bold text-blue-600">{totalYearsFundLasts} yrs</p>
-                        </div>
-                        <div className="p-3 border rounded-lg">
-                            <p className="text-sm font-medium text-gray-600">Outcome</p>
-                            <p className={`text-lg font-bold ${shortfallSurplus === 'Surplus' ? 'text-green-600' : 'text-red-600'}`}>{shortfallSurplus}</p>
-                        </div>
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">Projection</h2>
+            <div>
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                        <p className="text-xs font-medium text-gray-600">Retirement Pot</p>
+                        <p className="text-base font-bold text-blue-600">{projectedRetirementPotValue?.toLocaleString('en-GB', {
+                            style: 'currency',
+                            currency: 'GBP',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        })}</p>
                     </div>
-                    <PensionChart data={chartData}/>
-                    <div className="mt-8 space-y-4">
-                        <div>
-                            <label htmlFor="annualRetirementSpendingSlider" className="block text-sm font-medium text-gray-700">Retirement Spending: {annualRetirementSpending.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</label>
-                            <input type="range" id="annualRetirementSpendingSlider" min="10000" max="100000" step="1000" value={annualRetirementSpending} onChange={handleSliderChange(setAnnualRetirementSpending)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
-                        </div>
-                        <div>
-                            <label htmlFor="postRetirementGrowthSlider" className="block text-sm font-medium text-gray-700">Post-Retirement Growth: {postRetirementGrowth}%</label>
-                            <input type="range" id="postRetirementGrowthSlider" min="0" max="10" step="0.1" value={postRetirementGrowth} onChange={handleSliderChange(setPostRetirementGrowth)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
-                        </div>
-                        <div>
-                            <label htmlFor="inflationRateSlider" className="block text-sm font-medium text-gray-700">Inflation Rate: {inflationRate}%</label>
-                            <input type="range" id="inflationRateSlider" min="0" max="10" step="0.1" value={inflationRate} onChange={handleSliderChange(setInflationRate)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
-                        </div>
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                        <p className="text-xs font-medium text-gray-600">Funds Run Out</p>
+                        <p className="text-base font-bold text-blue-600">{ageFundsRunOut >= 90 ? 'Never' : ageFundsRunOut}</p>
+                    </div>
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                        <p className="text-xs font-medium text-gray-600">Fund Duration</p>
+                        <p className="text-base font-bold text-blue-600">{totalYearsFundLasts} yrs</p>
+                    </div>
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                        <p className="text-xs font-medium text-gray-600">Outcome</p>
+                        <p className={`text-base font-bold ${shortfallSurplus === 'Surplus' ? 'text-green-600' : 'text-red-600'}`}>{shortfallSurplus}</p>
                     </div>
                 </div>
-            ) : (
-                <div className="text-center text-gray-500 mt-16">Enter your details to see your pension projection.</div>
-            )}
+                <div className="mt-6 space-y-3">
+                    <div>
+                        <label htmlFor="annualRetirementSpendingSlider" className="block text-xs font-medium text-gray-700 mb-1">Retirement Spending: {annualRetirementSpending.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</label>
+                        <input type="range" id="annualRetirementSpendingSlider" min="10000" max="100000" step="1000" value={annualRetirementSpending} onChange={handleSliderChange(setAnnualRetirementSpending)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
+                    </div>
+                    <div>
+                        <label htmlFor="postRetirementGrowthSlider" className="block text-xs font-medium text-gray-700 mb-1">Post-Retirement Growth: {postRetirementGrowth}%</label>
+                        <input type="range" id="postRetirementGrowthSlider" min="0" max="10" step="0.1" value={postRetirementGrowth} onChange={handleSliderChange(setPostRetirementGrowth)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
+                    </div>
+                    <div>
+                        <label htmlFor="inflationRateSlider" className="block text-xs font-medium text-gray-700 mb-1">Inflation Rate: {inflationRate}%</label>
+                        <input type="range" id="inflationRateSlider" min="0" max="10" step="0.1" value={inflationRate} onChange={handleSliderChange(setInflationRate)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
+                    </div>
+                </div>
+                <div className="mt-6">
+                  <PensionChart data={chartData}/>
+                </div>
+            </div>
         </div>
     );
 }

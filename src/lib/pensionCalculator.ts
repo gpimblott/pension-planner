@@ -1,3 +1,9 @@
+interface Pension {
+    name: string;
+    amount: number;
+    startAge: number;
+}
+
 interface PensionInput {
     currentAge: number;
     pensionPotValue: number;
@@ -7,8 +13,7 @@ interface PensionInput {
     preRetirementGrowth: number; // percentage
     postRetirementGrowth: number; // percentage
     inflationRate: number; // percentage
-    statePensionIncome: number;
-    statePensionAge: number;
+    pensions: Pension[];
     annualPreRetirementIncome: number; // Now required
     contributionRate: number; // Now required
 }
@@ -43,10 +48,13 @@ export function calculatePension(input: PensionInput): PensionDataPoint[] {
         // Subtract annual spending
         currentPotValue -= currentAnnualSpending;
 
-        // Add state pension if applicable
-        if (age >= input.statePensionAge) {
-            currentPotValue += input.statePensionIncome;
-        }
+        // Add pension income if applicable
+        input.pensions.forEach(pension => {
+            if (age >= pension.startAge) {
+                currentPotValue += pension.amount;
+            }
+        });
+
         // Apply post-retirement growth
         currentPotValue *= (1 + input.postRetirementGrowth / 100);
 
