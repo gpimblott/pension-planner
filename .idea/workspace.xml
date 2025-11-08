@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e82fc1c0-9be7-44dd-afd8-024ab91d6b79" name="Changes" comment="tidy up display&#10;Multiple manually added pensions" />
+    <list default="true" id="e82fc1c0-9be7-44dd-afd8-024ab91d6b79" name="Changes" comment="Change icon and comment code">
+      <change afterPath="$PROJECT_DIR$/icon.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/InputForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/InputForm.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -95,7 +98,7 @@
       <updated>1762285494877</updated>
       <workItem from="1762285495870" duration="10470000" />
       <workItem from="1762550205969" duration="737000" />
-      <workItem from="1762551594899" duration="5459000" />
+      <workItem from="1762551594899" duration="5598000" />
     </task>
     <task id="LOCAL-00001" summary="Intiial commit">
       <option name="closed" value="true" />
@@ -145,7 +148,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762631595748</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Change icon and comment code">
+      <option name="closed" value="true" />
+      <created>1762631772348</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1762631772348</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -156,6 +167,7 @@
     <MESSAGE value="Finally working" />
     <MESSAGE value="Added multiple pension feature" />
     <MESSAGE value="tidy up display&#10;Multiple manually added pensions" />
-    <option name="LAST_COMMIT_MESSAGE" value="tidy up display&#10;Multiple manually added pensions" />
+    <MESSAGE value="Change icon and comment code" />
+    <option name="LAST_COMMIT_MESSAGE" value="Change icon and comment code" />
   </component>
 </project>

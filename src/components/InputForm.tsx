@@ -1,8 +1,7 @@
-
-
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 import Results from "./Results";
 
 /**
@@ -46,6 +45,33 @@ export default function InputForm() {
     const [pensions, setPensions] = useState([
         { name: "State Pension", amount: 11500, startAge: 67 },
     ]);
+
+    useEffect(() => {
+        const savedData = Cookies.get("pensionPlannerData");
+        if (savedData) {
+            const { currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, expectedReturn, pensions } = JSON.parse(savedData);
+            setCurrentAge(currentAge);
+            setRetirementAge(retirementAge);
+            setCurrentPot(currentPot);
+            setMonthlyContribution(monthlyContribution);
+            setEmployerContribution(employerContribution);
+            setExpectedReturn(expectedReturn);
+            setPensions(pensions);
+        }
+    }, []);
+
+    useEffect(() => {
+        const dataToSave = {
+            currentAge,
+            retirementAge,
+            currentPot,
+            monthlyContribution,
+            employerContribution,
+            expectedReturn,
+            pensions,
+        };
+        Cookies.set("pensionPlannerData", JSON.stringify(dataToSave), { expires: 365 });
+    }, [currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, expectedReturn, pensions]);
 
     /**
      * A higher-order function that returns a change event handler for a number input.
@@ -105,6 +131,20 @@ export default function InputForm() {
         const newPensions = [...pensions];
         newPensions.splice(index, 1);
         setPensions(newPensions);
+    };
+
+    /**
+     * Resets all form values to their default states and deletes the saved cookie.
+     */
+    const resetForm = () => {
+        Cookies.remove("pensionPlannerData");
+        setCurrentAge(30);
+        setRetirementAge(65);
+        setCurrentPot(50000);
+        setMonthlyContribution(500);
+        setEmployerContribution(250);
+        setExpectedReturn(5);
+        setPensions([{ name: "State Pension", amount: 11500, startAge: 67 }]);
     };
 
     return (
@@ -245,6 +285,7 @@ export default function InputForm() {
                             </div>
                         ))}
                         <button type="button" onClick={addPension} className="text-sm text-blue-600 hover:underline">Add another pension</button>
+                        <button type="button" onClick={resetForm} className="ml-4 text-sm text-gray-600 hover:underline">Reset</button>
                     </div>
                 </form>
             </div>
