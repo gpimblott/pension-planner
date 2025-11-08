@@ -12,8 +12,8 @@ export default function Home() {
         </div>
         <InputForm />
       </div>
-      <div className="text-center text-gray-500 text-sm mt-8">
-        <p>Disclaimer: The results provided by this tool are for illustrative purposes only and may not be accurate. Please consult with a financial professional for personalized advice.</p>
+      <div className="max-w-2xl mx-auto text-center text-gray-500 text-sm mt-4 mb-16">
+        <p>Disclaimer: The results provided by this tool are for illustrative purposes only and may not be accurate. Please consult with a financial professional for personalised advice.</p>
       </div>
     </main>
   );
