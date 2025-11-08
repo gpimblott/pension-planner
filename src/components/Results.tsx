@@ -110,8 +110,8 @@ export default function Results({
                                     expectedReturn,
                                     pensions,
                                 }: ResultsProps) {
-    const [annualRetirementSpending, setAnnualRetirementSpending] = useState(30000);
-    const [postRetirementGrowth, setPostRetirementGrowth] = useState(3);
+    const [annualRetirementSpending, setAnnualRetirementSpending] = useState(40000);
+    const [postRetirementGrowth, setPostRetirementGrowth] = useState(5);
     const [inflationRate, setInflationRate] = useState(2.5);
     const [showTable, setShowTable] = useState(false); // New state for toggling view
 

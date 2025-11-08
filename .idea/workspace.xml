@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e82fc1c0-9be7-44dd-afd8-024ab91d6b79" name="Changes" comment="Add a disclaimer to the pag" />
+    <list default="true" id="e82fc1c0-9be7-44dd-afd8-024ab91d6b79" name="Changes" comment="Added table feature" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -102,7 +102,7 @@
       <updated>1762285494877</updated>
       <workItem from="1762285495870" duration="10470000" />
       <workItem from="1762550205969" duration="737000" />
-      <workItem from="1762551594899" duration="7847000" />
+      <workItem from="1762551594899" duration="8476000" />
     </task>
     <task id="LOCAL-00001" summary="Intiial commit">
       <option name="closed" value="true" />
@@ -200,7 +200,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762634432530</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Added table feature">
+      <option name="closed" value="true" />
+      <created>1762635585940</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1762635585940</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -214,6 +222,7 @@
     <MESSAGE value="Change icon and comment code" />
     <MESSAGE value="Update the documentation" />
     <MESSAGE value="Add a disclaimer to the pag" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add a disclaimer to the pag" />
+    <MESSAGE value="Added table feature" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added table feature" />
   </component>
 </project>
