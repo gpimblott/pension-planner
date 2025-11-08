@@ -1,7 +1,7 @@
 
 "use client";
 
-import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, Bar } from "recharts";
 import React from "react";
 
 /**
@@ -20,6 +20,10 @@ interface ChartData {
     withdrawals: number;
     /** The cumulative pension income received. */
     pensionIncome: number;
+    /** The amount that can be withdrawn this year. */
+    spendingThisYear?: number;
+    /** The withdrawal rate for this year. */
+    withdrawalRate?: number;
 }
 
 /**
@@ -121,6 +125,7 @@ export default function PensionChart({ data }: PensionChartProps) {
                         wrapperStyle={{ paddingTop: "20px" }}
                         iconType="circle"
                     />
+                    <Bar dataKey="spendingThisYear" fill="#4ade80" name="Spending This Year" />
                     <Area
                         type="monotone"
                         dataKey="contributions"

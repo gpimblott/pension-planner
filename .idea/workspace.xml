@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e82fc1c0-9be7-44dd-afd8-024ab91d6b79" name="Changes" comment="new table">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Results.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Results.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/pensionCalculator.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/pensionCalculator.ts" afterDir="false" />
-    </list>
+    <list default="true" id="e82fc1c0-9be7-44dd-afd8-024ab91d6b79" name="Changes" comment="fancy technique" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -106,7 +102,7 @@
       <updated>1762285494877</updated>
       <workItem from="1762285495870" duration="10470000" />
       <workItem from="1762550205969" duration="737000" />
-      <workItem from="1762551594899" duration="10437000" />
+      <workItem from="1762551594899" duration="10862000" />
     </task>
     <task id="LOCAL-00001" summary="Intiial commit">
       <option name="closed" value="true" />
@@ -228,7 +224,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762635923985</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="fancy technique">
+      <option name="closed" value="true" />
+      <created>1762638856823</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1762638856823</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -245,6 +249,7 @@
     <MESSAGE value="Added table feature" />
     <MESSAGE value="Changed the default values" />
     <MESSAGE value="new table" />
-    <option name="LAST_COMMIT_MESSAGE" value="new table" />
+    <MESSAGE value="fancy technique" />
+    <option name="LAST_COMMIT_MESSAGE" value="fancy technique" />
   </component>
 </project>
