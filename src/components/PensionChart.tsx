@@ -3,19 +3,42 @@
 
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from "recharts";
 
+/**
+ * Represents a single data point for the pension chart.
+ */
 interface ChartData {
+    /** The age at this data point. */
     year: number;
+    /** The projected value of the pension pot. */
     value: number;
+    /** The total contributions made to the pension pot. */
     contributions: number;
+    /** The growth of the pension pot. */
     growth: number;
+    /** The cumulative withdrawals from the pension pot. */
     withdrawals: number;
+    /** The cumulative pension income received. */
     pensionIncome: number;
 }
 
+/**
+ * Represents the props for the PensionChart component.
+ */
 interface PensionChartProps {
+    /** The data to display in the chart. */
     data: ChartData[];
 }
 
+/**
+ * A chart that visualizes the pension projection.
+ *
+ * This component uses the Recharts library to render an area chart
+ * showing the projected value of the pension pot over time, as well as
+ * other series like contributions, withdrawals, and pension income.
+ *
+ * @param {PensionChartProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered chart.
+ */
 export default function PensionChart({ data }: PensionChartProps) {
     return (
         <div className="w-full h-96">
