@@ -5,17 +5,54 @@
 import { useState } from "react";
 import Results from "./Results";
 
+/**
+ * A form for inputting pension planning data.
+ *
+ * This component renders a form with various input fields for pension planning,
+ * including current age, retirement age, current pension pot, contributions,
+ * expected return, and a list of pensions. It also renders the `Results`
+ * component, passing the input data to it.
+ *
+ * @returns {JSX.Element} The rendered form and results.
+ */
 export default function InputForm() {
+    /**
+     * The user's current age.
+     */
     const [currentAge, setCurrentAge] = useState(30);
+    /**
+     * The user's desired retirement age.
+     */
     const [retirementAge, setRetirementAge] = useState(65);
+    /**
+     * The user's current pension pot value.
+     */
     const [currentPot, setCurrentPot] = useState(50000);
+    /**
+     * The user's monthly contribution to their pension.
+     */
     const [monthlyContribution, setMonthlyContribution] = useState(500);
+    /**
+     * The employer's monthly contribution to the user's pension.
+     */
     const [employerContribution, setEmployerContribution] = useState(250);
+    /**
+     * The expected annual return on the pension pot.
+     */
     const [expectedReturn, setExpectedReturn] = useState(5);
+    /**
+     * An array of pension objects, each with a name, amount, and start age.
+     */
     const [pensions, setPensions] = useState([
         { name: "State Pension", amount: 11500, startAge: 67 },
     ]);
 
+    /**
+     * A higher-order function that returns a change event handler for a number input.
+     *
+     * @param setter - The state setter function to call with the new number value.
+     * @returns A function that handles the change event of a number input.
+     */
     const handleNumberInput = (setter: (value: number) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (value === "" || value === "-") {
@@ -28,6 +65,13 @@ export default function InputForm() {
         }
     };
 
+    /**
+     * Handles changes to a pension in the pensions array.
+     *
+     * @param index - The index of the pension to update.
+     * @param field - The field of the pension to update (e.g., "name", "amount", "startAge").
+     * @param value - The new value for the field.
+     */
     const handlePensionChange = (index: number, field: string, value: string | number) => {
         const newPensions = [...pensions];
         if (typeof value === 'string' && field !== 'name') {
@@ -45,10 +89,18 @@ export default function InputForm() {
         setPensions(newPensions);
     };
 
+    /**
+     * Adds a new pension to the pensions array.
+     */
     const addPension = () => {
         setPensions([...pensions, { name: "Private Pension", amount: 0, startAge: 65 }]);
     };
 
+    /**
+     * Removes a pension from the pensions array.
+     *
+     * @param index - The index of the pension to remove.
+     */
     const removePension = (index: number) => {
         const newPensions = [...pensions];
         newPensions.splice(index, 1);
