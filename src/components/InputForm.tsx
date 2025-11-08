@@ -49,6 +49,12 @@ export default function InputForm() {
         setPensions([...pensions, { name: "Private Pension", amount: 0, startAge: 65 }]);
     };
 
+    const removePension = (index: number) => {
+        const newPensions = [...pensions];
+        newPensions.splice(index, 1);
+        setPensions(newPensions);
+    };
+
     return (
         <div className="w-full grid grid-rows-auto gap-6">
             {/* Input Form Section */}
@@ -159,7 +165,7 @@ export default function InputForm() {
                     <div>
                         <h3 className="text-lg font-bold mb-2 text-gray-800">Pensions</h3>
                         {pensions.map((pension, index) => (
-                            <div key={index} className="grid grid-cols-3 gap-4 mb-2">
+                            <div key={index} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-4 mb-2">
                                 <input
                                     type="text"
                                     value={pension.name}
@@ -179,6 +185,11 @@ export default function InputForm() {
                                     onChange={(e) => handlePensionChange(index, 'startAge', e.target.value)}
                                     className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
                                 />
+                                {index > 0 && (
+                                    <button type="button" onClick={() => removePension(index)} className="text-red-500 hover:text-red-700">
+                                        &times;
+                                    </button>
+                                )}
                             </div>
                         ))}
                         <button type="button" onClick={addPension} className="text-sm text-blue-600 hover:underline">Add another pension</button>

@@ -29,6 +29,7 @@ interface ChartData {
     contributions: number;
     growth: number;
     withdrawals: number;
+    pensionIncome: number;
 }
 
 function transformPensionDataForChart(
@@ -48,6 +49,7 @@ function transformPensionDataForChart(
 
     let cumulativeWithdrawals = 0;
     let currentAnnualSpending = annualRetirementSpending;
+    let cumulativePensionIncome = 0;
 
     return pensionData.map((point, index) => {
         const isRetired = point.age >= retirementAge;
@@ -60,13 +62,23 @@ function transformPensionDataForChart(
             ? totalContributionsAtRetirement
             : currentPot + (yearsCompleted * annualContribution);
 
+        let yearlyPensionIncome = 0;
+        if (isRetired) {
+            pensions.forEach(pension => {
+                if (point.age > pension.startAge) {
+                    yearlyPensionIncome += pension.amount;
+                }
+            });
+        }
+        cumulativePensionIncome += yearlyPensionIncome;
+
         // Calculate cumulative withdrawals with inflation adjustment
         if (isRetired && point.age > retirementAge) {
             // Adjust spending for inflation each year
             currentAnnualSpending = annualRetirementSpending * Math.pow(1 + inflationRate / 100, yearsSinceRetirement - 1);
             let netWithdrawal = currentAnnualSpending;
             pensions.forEach(pension => {
-                if (point.age >= pension.startAge) {
+                if (point.age > pension.startAge) {
                     netWithdrawal -= pension.amount;
                 }
             });
@@ -83,6 +95,7 @@ function transformPensionDataForChart(
             contributions: totalContributions,
             growth: growth,
             withdrawals: cumulativeWithdrawals,
+            pensionIncome: cumulativePensionIncome,
         };
     });
 }

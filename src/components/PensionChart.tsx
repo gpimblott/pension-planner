@@ -9,6 +9,7 @@ interface ChartData {
     contributions: number;
     growth: number;
     withdrawals: number;
+    pensionIncome: number;
 }
 
 interface PensionChartProps {
@@ -32,6 +33,10 @@ export default function PensionChart({ data }: PensionChartProps) {
                         <linearGradient id="colorWithdrawals" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
                             <stop offset="95%" stopColor="#ef4444" stopOpacity={0.1}/>
+                        </linearGradient>
+                        <linearGradient id="colorPensionIncome" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -67,8 +72,7 @@ export default function PensionChart({ data }: PensionChartProps) {
                         dataKey="contributions"
                         stroke="#10b981"
                         strokeWidth={3}
-                        fillOpacity={1}
-                        fill="url(#colorContributions)"
+                        fill="none"
                         name="Total Contributions"
                     />
                     <Area
@@ -76,9 +80,16 @@ export default function PensionChart({ data }: PensionChartProps) {
                         dataKey="withdrawals"
                         stroke="#ef4444"
                         strokeWidth={2}
-                        fillOpacity={1}
-                        fill="url(#colorWithdrawals)"
+                        fill="none"
                         name="Cumulative Withdrawals"
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="pensionIncome"
+                        stroke="#8b5cf6"
+                        strokeWidth={2}
+                        fill="none"
+                        name="Cumulative Pension Income"
                     />
                     <Area
                         type="monotone"

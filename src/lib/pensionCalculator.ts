@@ -50,7 +50,7 @@ export function calculatePension(input: PensionInput): PensionDataPoint[] {
 
         // Add pension income if applicable
         input.pensions.forEach(pension => {
-            if (age >= pension.startAge) {
+            if (age > pension.startAge) {
                 currentPotValue += pension.amount;
             }
         });
