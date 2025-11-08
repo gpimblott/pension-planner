@@ -2,6 +2,7 @@
 "use client";
 
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from "recharts";
+import React from "react";
 
 /**
  * Represents a single data point for the pension chart.
@@ -39,6 +40,44 @@ interface PensionChartProps {
  * @param {PensionChartProps} props - The props for the component.
  * @returns {JSX.Element} The rendered chart.
  */
+function formatCurrency(n?: number) {
+    if (n === undefined || n === null || isNaN(n)) return "-";
+    return `£${Math.round(n).toLocaleString('en-GB')}`;
+}
+
+function formatPct(p?: number) {
+    if (p === undefined || p === null || isNaN(p)) return "-";
+    return `${(p * 100).toFixed(2)}%`;
+}
+
+function CustomTooltip({ active, payload, label }: any) {
+    if (active && payload && payload.length) {
+        const point = payload[0].payload as any;
+        return (
+            <div style={{ background: 'white', borderRadius: 12, border: '2px solid #e5e7eb', padding: 12, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontWeight: 700, marginBottom: 6 }}>Age: {label}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: 6 }}>
+                    <span style={{ color: '#3b82f6' }}>Projected Value:</span><span>{formatCurrency(point.value)}</span>
+                    <span style={{ color: '#10b981' }}>Total Contributions:</span><span>{formatCurrency(point.contributions)}</span>
+                    <span style={{ color: '#ef4444' }}>Cumulative Withdrawals:</span><span>{formatCurrency(point.withdrawals)}</span>
+                    <span style={{ color: '#8b5cf6' }}>Cumulative Pension Income:</span><span>{formatCurrency(point.pensionIncome)}</span>
+                    {point.spendingThisYear !== undefined && (
+                        <>
+                            <span>Spending (this year):</span><span>{formatCurrency(point.spendingThisYear)}</span>
+                        </>
+                    )}
+                    {point.withdrawalRate !== undefined && point.withdrawalRate !== 0 && (
+                        <>
+                            <span>Withdrawal rate:</span><span>{formatPct(point.withdrawalRate)}</span>
+                        </>
+                    )}
+                </div>
+            </div>
+        );
+    }
+    return null;
+}
+
 export default function PensionChart({ data }: PensionChartProps) {
     return (
         <div className="w-full h-96">
@@ -76,15 +115,7 @@ export default function PensionChart({ data }: PensionChartProps) {
                         tickFormatter={(value) => `£${(value / 1000).toFixed(0)}k`}
                     />
                     <Tooltip
-                        contentStyle={{
-                            backgroundColor: "white",
-                            borderRadius: "12px",
-                            border: "2px solid #e5e7eb",
-                            padding: "12px",
-                            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
-                        }}
-                        formatter={(value: number) => [`£${value.toLocaleString()}`, ""]}
-                        labelFormatter={(label) => `Age: ${label}`}
+                        content={<CustomTooltip />}
                     />
                     <Legend
                         wrapperStyle={{ paddingTop: "20px" }}

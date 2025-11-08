@@ -31,10 +31,12 @@ interface ChartData {
     growth: number;
     withdrawals: number;
     pensionIncome: number;
+    spendingThisYear?: number;
+    withdrawalRate?: number; // spending / start-of-year pot
 }
 
 function transformPensionDataForChart(
-    pensionData: Array<{ age: number; potValue: number }>,
+    pensionData: Array<any>,
     currentAge: number,
     retirementAge: number,
     currentPot: number,
@@ -66,7 +68,7 @@ function transformPensionDataForChart(
         let yearlyPensionIncome = 0;
         if (isRetired) {
             pensions.forEach(pension => {
-                if (point.age > pension.startAge) {
+                if (point.age >= pension.startAge) {
                     yearlyPensionIncome += pension.amount;
                 }
             });
@@ -79,7 +81,7 @@ function transformPensionDataForChart(
             currentAnnualSpending = annualRetirementSpending * Math.pow(1 + inflationRate / 100, yearsSinceRetirement - 1);
             let netWithdrawal = currentAnnualSpending;
             pensions.forEach(pension => {
-                if (point.age > pension.startAge) {
+                if (point.age >= pension.startAge) {
                     netWithdrawal -= pension.amount;
                 }
             });
@@ -97,6 +99,8 @@ function transformPensionDataForChart(
             growth: growth,
             withdrawals: cumulativeWithdrawals,
             pensionIncome: cumulativePensionIncome,
+            spendingThisYear: point.spendingThisYear,
+            withdrawalRate: point.withdrawalRate,
         };
     });
 }
@@ -114,6 +118,10 @@ export default function Results({
     const [postRetirementGrowth, setPostRetirementGrowth] = useState(5);
     const [inflationRate, setInflationRate] = useState(2.5);
     const [showTable, setShowTable] = useState(false); // New state for toggling view
+    const [gkEnabled, setGkEnabled] = useState(false); // Guyton–Klinger dynamic withdrawals toggle
+    const [gkBandWidthPct, setGkBandWidthPct] = useState(20);
+    const [gkAdjustmentPct, setGkAdjustmentPct] = useState(10);
+    const [gkSkipInflationOnLoss, setGkSkipInflationOnLoss] = useState(true);
 
     const pensionData = useMemo(() => {
         const annualContribution = (monthlyContribution + employerContribution) * 12;
@@ -130,8 +138,14 @@ export default function Results({
             pensions,
             annualPreRetirementIncome: annualContribution,
             contributionRate: 100,
+            gkEnabled,
+            gk: {
+                bandWidthPct: gkBandWidthPct,
+                adjustmentPct: gkAdjustmentPct,
+                skipInflationOnLoss: gkSkipInflationOnLoss,
+            },
         });
-    }, [currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, expectedReturn, annualRetirementSpending, postRetirementGrowth, inflationRate, pensions]);
+    }, [currentAge, retirementAge, currentPot, monthlyContribution, employerContribution, expectedReturn, annualRetirementSpending, postRetirementGrowth, inflationRate, pensions, gkEnabled, gkBandWidthPct, gkAdjustmentPct, gkSkipInflationOnLoss]);
 
     const chartData = useMemo(() =>
             transformPensionDataForChart(
@@ -210,6 +224,29 @@ export default function Results({
                         <label htmlFor="inflationRateSlider" className="block text-xs font-medium text-gray-700 mb-1">Inflation Rate: {inflationRate}%</label>
                         <input type="range" id="inflationRateSlider" min="0" max="10" step="0.1" value={inflationRate} onChange={handleSliderChange(setInflationRate)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"/>
                     </div>
+                    <div className="flex items-center gap-2 pt-2">
+                        <input id="gkToggle" type="checkbox" className="h-4 w-4 accent-blue-600" checked={gkEnabled} onChange={(e) => setGkEnabled(e.target.checked)} />
+                        <label htmlFor="gkToggle" className="text-xs font-medium text-gray-700">Dynamic withdrawals (Guyton–Klinger)</label>
+                    </div>
+                    {gkEnabled && (
+                        <div className="space-y-2 bg-gray-50 rounded-lg p-3">
+                            <p className="text-[11px] text-gray-600">When enabled: spending is inflation‑linked except after a loss year (optional), and adjusts by an amount when the withdrawal rate breaches your guardrails.</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label htmlFor="gkBand" className="block text-xs font-medium text-gray-700 mb-1">Guardrail band (±% around initial WR): {gkBandWidthPct}%</label>
+                                    <input id="gkBand" type="range" min={5} max={40} step={1} value={gkBandWidthPct} onChange={(e)=> setGkBandWidthPct(Math.min(40, Math.max(5, Number(e.target.value))))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                                </div>
+                                <div>
+                                    <label htmlFor="gkAdjust" className="block text-xs font-medium text-gray-700 mb-1">Spending adjustment step: {gkAdjustmentPct}%</label>
+                                    <input id="gkAdjust" type="range" min={5} max={20} step={1} value={gkAdjustmentPct} onChange={(e)=> setGkAdjustmentPct(Math.min(20, Math.max(5, Number(e.target.value))))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                                </div>
+                                <div className="flex items-center gap-2 pt-5 sm:pt-0">
+                                    <input id="gkSkipLoss" type="checkbox" className="h-4 w-4 accent-blue-600" checked={gkSkipInflationOnLoss} onChange={(e)=> setGkSkipInflationOnLoss(e.target.checked)} />
+                                    <label htmlFor="gkSkipLoss" className="text-xs font-medium text-gray-700">Skip inflation increase after a loss year</label>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="mt-6">
                     <div className="flex justify-center space-x-4 mb-4">
