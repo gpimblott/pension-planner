@@ -194,7 +194,7 @@ export default function InputForm() {
                 </div>
 
                 <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
                         {/* Current Age */}
                         <div className="space-y-1.5">
                             <label htmlFor="currentAgeInput" className="block text-xs font-bold text-brand-muted uppercase tracking-wider">
@@ -249,46 +249,6 @@ export default function InputForm() {
                             <p className="text-[11px] text-brand-muted">£{currentPot.toLocaleString()}</p>
                         </div>
 
-                        {/* Expected Return */}
-                        <div className="space-y-1.5">
-                            <label htmlFor="expectedReturnInput" className="block text-xs font-bold text-brand-muted uppercase tracking-wider">
-                                Expected Return (Pre-Retirement)
-                            </label>
-                            <div className="relative">
-                                <input
-                                    id="expectedReturnInput"
-                                    type="number"
-                                    value={expectedReturn ?? ""}
-                                    onChange={handleNumberInput(setExpectedReturn)}
-                                    className="w-full pr-7 pl-3 py-2 text-sm border border-brand-border bg-brand-bg rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary hover:border-brand-primary/20 transition-all font-medium text-slate-100"
-                                    min="0"
-                                    max="20"
-                                    step="0.5"
-                                />
-                                <span className="absolute right-3 top-2.5 text-brand-muted text-xs font-semibold">%</span>
-                            </div>
-                            <div className="flex gap-1.5 mt-1.5">
-                                {[
-                                    { label: "Cons (3%)", val: 3 },
-                                    { label: "Bal (5%)", val: 5 },
-                                    { label: "Aggr (7%)", val: 7 }
-                                ].map((preset) => (
-                                    <button
-                                        key={preset.val}
-                                        type="button"
-                                        onClick={() => setExpectedReturn(preset.val)}
-                                        className={`px-2 py-0.5 text-[10px] font-semibold rounded border transition-all ${
-                                            expectedReturn === preset.val
-                                                ? "bg-brand-primary border-brand-primary text-black shadow-sm"
-                                                : "bg-brand-bg border-brand-border text-brand-muted hover:bg-brand-surface-hover hover:text-slate-100"
-                                        }`}
-                                    >
-                                        {preset.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
                         {/* Monthly Contribution */}
                         <div className="space-y-1.5">
                             <label htmlFor="monthlyContributionInput" className="block text-xs font-bold text-brand-muted uppercase tracking-wider">
@@ -327,6 +287,48 @@ export default function InputForm() {
                                 />
                             </div>
                             <p className="text-[11px] text-brand-muted">£{employerContribution.toLocaleString()}/mo</p>
+                        </div>
+
+                        {/* Expected Return — full width because of preset buttons */}
+                        <div className="space-y-1.5 sm:col-span-2">
+                            <label htmlFor="expectedReturnInput" className="block text-xs font-bold text-brand-muted uppercase tracking-wider">
+                                Expected Return (Pre-Retirement)
+                            </label>
+                            <div className="flex gap-3 items-center">
+                                <div className="relative flex-1">
+                                    <input
+                                        id="expectedReturnInput"
+                                        type="number"
+                                        value={expectedReturn ?? ""}
+                                        onChange={handleNumberInput(setExpectedReturn)}
+                                        className="w-full pr-7 pl-3 py-2 text-sm border border-brand-border bg-brand-bg rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary hover:border-brand-primary/20 transition-all font-medium text-slate-100"
+                                        min="0"
+                                        max="20"
+                                        step="0.5"
+                                    />
+                                    <span className="absolute right-3 top-2.5 text-brand-muted text-xs font-semibold">%</span>
+                                </div>
+                                <div className="flex gap-1.5 shrink-0">
+                                    {[
+                                        { label: "Cons (3%)", val: 3 },
+                                        { label: "Bal (5%)", val: 5 },
+                                        { label: "Aggr (7%)", val: 7 }
+                                    ].map((preset) => (
+                                        <button
+                                            key={preset.val}
+                                            type="button"
+                                            onClick={() => setExpectedReturn(preset.val)}
+                                            className={`px-2 py-1.5 text-[10px] font-semibold rounded border transition-all ${
+                                                expectedReturn === preset.val
+                                                    ? "bg-brand-primary border-brand-primary text-black shadow-sm"
+                                                    : "bg-brand-bg border-brand-border text-brand-muted hover:bg-brand-surface-hover hover:text-slate-100"
+                                            }`}
+                                        >
+                                            {preset.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -383,12 +385,12 @@ export default function InputForm() {
                                         <div className="space-y-1 sm:space-y-0">
                                             <span className="text-[10px] font-bold text-brand-muted block sm:hidden">Annual Amount (£)</span>
                                             <div className="relative">
-                                                <span className="absolute left-2 top-2 text-brand-muted text-2xs font-semibold">£</span>
+                                                <span className="absolute left-2.5 top-1.5 text-brand-muted text-xs font-semibold">£</span>
                                                 <input
                                                     type="number"
                                                     value={pension.amount ?? ""}
                                                     onChange={(e) => handlePensionChange(index, 'amount', e.target.value)}
-                                                    className="w-full pl-4.5 pr-2 py-1.5 text-xs border border-brand-border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary bg-brand-bg text-slate-100 hover:border-brand-primary/20 transition-colors"
+                                                    className="w-full pl-5 pr-2 py-1.5 text-xs border border-brand-border rounded-md focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary bg-brand-bg text-slate-100 hover:border-brand-primary/20 transition-colors"
                                                     placeholder="11500"
                                                 />
                                             </div>
