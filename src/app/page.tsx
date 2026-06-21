@@ -5,11 +5,13 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col">
       <div className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center mb-8">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Simple Pension Planner
+          <div className="text-center mb-10 space-y-2">
+            <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+              Pension Projection Dashboard
             </h1>
-
+            <p className="text-slate-500 max-w-xl mx-auto text-xs sm:text-sm">
+              Project your retirement savings, evaluate inflation risks, and simulate dynamic withdrawals to secure your financial future.
+            </p>
           </div>
           <InputForm />
         </div>

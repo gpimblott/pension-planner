@@ -8,6 +8,8 @@ interface Pension {
     amount: number;
     /** The age at which the pension starts. */
     startAge: number;
+    /** Whether the pension is inflation-linked. */
+    isInflationLinked?: boolean;
 }
 
 /**
@@ -36,6 +38,24 @@ interface PensionInput {
     annualPreRetirementIncome: number; // Now required
     /** The percentage of the annual income contributed to the pension. */
     contributionRate: number; // Now required
+    /** Lump sum type to take at retirement ('percentage' or 'fixed'). */
+    lumpSumType?: 'percentage' | 'fixed';
+    /** Lump sum percentage (e.g. 25 for 25% tax-free). */
+    lumpSumPct?: number;
+    /** Fixed cash lump sum amount. */
+    lumpSumAmount?: number;
+    /** Spending profile type ('constant' | 'phased'). */
+    spendingProfileType?: 'constant' | 'phased';
+    /** Spending amount during early retirement phase. */
+    earlyRetirementSpending?: number;
+    /** Duration of the early retirement phase in years. */
+    earlyRetirementDuration?: number;
+    /** Spending amount during mid retirement phase. */
+    midRetirementSpending?: number;
+    /** Duration of the mid retirement phase in years. */
+    midRetirementDuration?: number;
+    /** Spending amount during late retirement phase. */
+    lateRetirementSpending?: number;
     /** Enable dynamic withdrawals using Guyton–Klinger rules. */
     gkEnabled?: boolean;
     /** Optional Guyton–Klinger parameters. Percent values, e.g., 20 for 20%. */
@@ -65,6 +85,8 @@ interface PensionDataPoint {
     pensionIncomeThisYear?: number;
     /** Withdrawal rate computed as spending / start-of-year pot. */
     withdrawalRate?: number;
+    /** Lump sum cash taken at this age (at retirement). */
+    lumpSumTaken?: number;
 }
 
 /**
@@ -76,7 +98,21 @@ interface PensionDataPoint {
 export function calculatePension(input: PensionInput): PensionDataPoint[] {
     const data: PensionDataPoint[] = [{age: input.currentAge, potValue: input.pensionPotValue}];
     let currentPotValue = input.pensionPotValue;
-    let currentAnnualSpending = input.annualRetirementSpending;
+    // Inflate constant annual retirement spending pre-retirement (from currentAge to retirementAge)
+    let currentAnnualSpending = input.annualRetirementSpending * Math.pow(1 + input.inflationRate / 100, input.retirementAge - input.currentAge);
+
+    // Check if user starts already retired (currentAge === retirementAge)
+    let lumpSumTaken = 0;
+    if (input.currentAge === input.retirementAge) {
+        if (input.lumpSumType === 'percentage' && input.lumpSumPct !== undefined) {
+            lumpSumTaken = currentPotValue * (input.lumpSumPct / 100);
+        } else if (input.lumpSumType === 'fixed' && input.lumpSumAmount !== undefined) {
+            lumpSumTaken = input.lumpSumAmount;
+        }
+        lumpSumTaken = Math.min(lumpSumTaken, currentPotValue);
+        currentPotValue -= lumpSumTaken;
+        data[0] = { age: input.currentAge, potValue: currentPotValue, lumpSumTaken };
+    }
 
     // Pre-retirement phase (contributions then growth at end of year)
     for (let age = input.currentAge + 1; age <= input.retirementAge; age++) {
@@ -86,7 +122,18 @@ export function calculatePension(input: PensionInput): PensionDataPoint[] {
         // Apply pre-retirement growth
         currentPotValue *= (1 + input.preRetirementGrowth / 100);
 
-        data.push({age, potValue: currentPotValue});
+        if (age === input.retirementAge) {
+            if (input.lumpSumType === 'percentage' && input.lumpSumPct !== undefined) {
+                lumpSumTaken = currentPotValue * (input.lumpSumPct / 100);
+            } else if (input.lumpSumType === 'fixed' && input.lumpSumAmount !== undefined) {
+                lumpSumTaken = input.lumpSumAmount;
+            }
+            lumpSumTaken = Math.min(lumpSumTaken, currentPotValue);
+            currentPotValue -= lumpSumTaken;
+            data.push({age, potValue: currentPotValue, lumpSumTaken});
+        } else {
+            data.push({age, potValue: currentPotValue});
+        }
     }
 
     // Capture pot at retirement to derive initial withdrawal rate (for GK rules)
@@ -106,29 +153,56 @@ export function calculatePension(input: PensionInput): PensionDataPoint[] {
 
     for (let age = input.retirementAge + 1; age <= input.lifeExpectancy; age++) {
         const startOfYearPot = currentPotValue;
-
-        // 1) Inflation rule: optionally skip inflation raise after a negative real return in prior year
-        const priorRealReturn = previousNominalReturn - (input.inflationRate / 100);
-        if (!(gkEnabled && skipInflationOnLoss && priorRealReturn < 0)) {
-            currentAnnualSpending *= (1 + input.inflationRate / 100);
-        }
-
-        // 2) Guardrails: adjust spending if current withdrawal rate breaches bands
+        let spendingThisYear = 0;
         let currentWR = 0;
-        if (gkEnabled && startOfYearPot > 0 && initialWithdrawalRate > 0) {
-            currentWR = currentAnnualSpending / startOfYearPot;
-            if (currentWR > upperGuardrail) {
-                // Capital preservation: cut spending by adjustment percentage
-                currentAnnualSpending *= (1 - gkAdjust);
-            } else if (currentWR < lowerGuardrail) {
-                // Prosperity: raise spending by adjustment percentage
-                currentAnnualSpending *= (1 + gkAdjust);
-            }
-        } else if (startOfYearPot > 0) {
-            currentWR = currentAnnualSpending / startOfYearPot;
-        }
 
-        const spendingThisYear = currentAnnualSpending;
+        if (input.spendingProfileType === 'phased') {
+            // Phased spending: Early, Mid, and Late retirement spending levels
+            const yearsRetired = age - input.retirementAge;
+            const earlyDuration = input.earlyRetirementDuration ?? 10;
+            const midDuration = input.midRetirementDuration ?? 10;
+            const earlySpending = input.earlyRetirementSpending ?? 45000;
+            const midSpending = input.midRetirementSpending ?? 35000;
+            const lateSpending = input.lateRetirementSpending ?? 25000;
+
+            let baseRealSpending = earlySpending;
+            if (yearsRetired <= earlyDuration) {
+                baseRealSpending = earlySpending;
+            } else if (yearsRetired <= earlyDuration + midDuration) {
+                baseRealSpending = midSpending;
+            } else {
+                baseRealSpending = lateSpending;
+            }
+
+            // Inflate spending from currentAge to age to keep constant purchasing power in today's terms
+            spendingThisYear = baseRealSpending * Math.pow(1 + input.inflationRate / 100, age - input.currentAge);
+            if (startOfYearPot > 0) {
+                currentWR = spendingThisYear / startOfYearPot;
+            }
+        } else {
+            // Constant spending profile (with optional Guyton–Klinger rules)
+            // 1) Inflation rule: optionally skip inflation raise after a negative real return in prior year
+            const priorRealReturn = previousNominalReturn - (input.inflationRate / 100);
+            if (!(gkEnabled && skipInflationOnLoss && priorRealReturn < 0)) {
+                currentAnnualSpending *= (1 + input.inflationRate / 100);
+            }
+
+            // 2) Guardrails: adjust spending if current withdrawal rate breaches bands
+            if (gkEnabled && startOfYearPot > 0 && initialWithdrawalRate > 0) {
+                currentWR = currentAnnualSpending / startOfYearPot;
+                if (currentWR > upperGuardrail) {
+                    // Capital preservation: cut spending by adjustment percentage
+                    currentAnnualSpending *= (1 - gkAdjust);
+                } else if (currentWR < lowerGuardrail) {
+                    // Prosperity: raise spending by adjustment percentage
+                    currentAnnualSpending *= (1 + gkAdjust);
+                }
+            } else if (startOfYearPot > 0) {
+                currentWR = currentAnnualSpending / startOfYearPot;
+            }
+
+            spendingThisYear = currentAnnualSpending;
+        }
 
         // 3) Subtract annual spending at start of year
         currentPotValue -= spendingThisYear;
@@ -137,8 +211,12 @@ export function calculatePension(input: PensionInput): PensionDataPoint[] {
         let pensionIncomeThisYear = 0;
         input.pensions.forEach(pension => {
             if (age >= pension.startAge) {
-                currentPotValue += pension.amount;
-                pensionIncomeThisYear += pension.amount;
+                const isLinked = pension.isInflationLinked ?? true;
+                const actualAmount = isLinked
+                    ? pension.amount * Math.pow(1 + input.inflationRate / 100, age - input.currentAge)
+                    : pension.amount;
+                currentPotValue += actualAmount;
+                pensionIncomeThisYear += actualAmount;
             }
         });
 

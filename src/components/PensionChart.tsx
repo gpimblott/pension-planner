@@ -1,7 +1,7 @@
 
 "use client";
 
-import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart, Bar } from "recharts";
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, Bar, ComposedChart } from "recharts";
 import React from "react";
 
 /**
@@ -34,16 +34,6 @@ interface PensionChartProps {
     data: ChartData[];
 }
 
-/**
- * A chart that visualizes the pension projection.
- *
- * This component uses the Recharts library to render an area chart
- * showing the projected value of the pension pot over time, as well as
- * other series like contributions, withdrawals, and pension income.
- *
- * @param {PensionChartProps} props - The props for the component.
- * @returns {JSX.Element} The rendered chart.
- */
 function formatCurrency(n?: number) {
     if (n === undefined || n === null || isNaN(n)) return "-";
     return `£${Math.round(n).toLocaleString('en-GB')}`;
@@ -58,21 +48,31 @@ function CustomTooltip({ active, payload, label }: any) {
     if (active && payload && payload.length) {
         const point = payload[0].payload as any;
         return (
-            <div style={{ background: 'white', borderRadius: 12, border: '2px solid #e5e7eb', padding: 12, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
-                <div style={{ fontWeight: 700, marginBottom: 6 }}>Age: {label}</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: 6 }}>
-                    <span style={{ color: '#3b82f6' }}>Projected Value:</span><span>{formatCurrency(point.value)}</span>
-                    <span style={{ color: '#10b981' }}>Total Contributions:</span><span>{formatCurrency(point.contributions)}</span>
-                    <span style={{ color: '#ef4444' }}>Cumulative Withdrawals:</span><span>{formatCurrency(point.withdrawals)}</span>
-                    <span style={{ color: '#8b5cf6' }}>Cumulative Pension Income:</span><span>{formatCurrency(point.pensionIncome)}</span>
+            <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-xl text-xs space-y-2">
+                <div className="font-extrabold text-slate-800 border-b border-slate-100 pb-1">Age {label}</div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-semibold text-slate-600">
+                    <span className="text-blue-500">Projected Pot:</span>
+                    <span className="text-right text-slate-800 font-bold">{formatCurrency(point.value)}</span>
+
+                    <span className="text-emerald-500">Total Contributions:</span>
+                    <span className="text-right text-slate-800">{formatCurrency(point.contributions)}</span>
+
+                    <span className="text-rose-500">Cumulative Withdrawals:</span>
+                    <span className="text-right text-slate-800">{formatCurrency(point.withdrawals)}</span>
+
+                    <span className="text-purple-500">Cumulative Income:</span>
+                    <span className="text-right text-slate-800">{formatCurrency(point.pensionIncome)}</span>
+
                     {point.spendingThisYear !== undefined && (
                         <>
-                            <span>Spending (this year):</span><span>{formatCurrency(point.spendingThisYear)}</span>
+                            <span className="text-slate-400 font-medium">Spending (this year):</span>
+                            <span className="text-right text-slate-700 font-medium">{formatCurrency(point.spendingThisYear)}</span>
                         </>
                     )}
                     {point.withdrawalRate !== undefined && point.withdrawalRate !== 0 && (
                         <>
-                            <span>Withdrawal rate:</span><span>{formatPct(point.withdrawalRate)}</span>
+                            <span className="text-amber-500 font-medium">Withdrawal Rate:</span>
+                            <span className="text-right text-slate-700 font-medium">{formatPct(point.withdrawalRate)}</span>
                         </>
                     )}
                 </div>
@@ -84,63 +84,60 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export default function PensionChart({ data }: PensionChartProps) {
     return (
-        <div className="w-full h-96">
+        <div className="w-full h-[360px]">
             <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 10 }}>
+                <ComposedChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 10 }}>
                     <defs>
                         <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                        </linearGradient>
-                        <linearGradient id="colorContributions" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
-                        </linearGradient>
-                        <linearGradient id="colorWithdrawals" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#ef4444" stopOpacity={0.1}/>
-                        </linearGradient>
-                        <linearGradient id="colorPensionIncome" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0}/>
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                     <XAxis
                         dataKey="year"
-                        label={{ value: "Age", position: "insideBottom", offset: -5 }}
-                        tick={{ fill: "#6b7280", fontSize: 14 }}
-                        stroke="#9ca3af"
+                        tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 500 }}
+                        stroke="#e2e8f0"
+                        tickLine={false}
+                        axisLine={false}
+                        dy={8}
                     />
                     <YAxis
-                        label={{ value: "Value (£)", angle: -90, position: "insideLeft", offset: -15 }}
-                        tick={{ fill: "#6b7280", fontSize: 14 }}
-                        stroke="#9ca3af"
+                        tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 500 }}
+                        stroke="#e2e8f0"
                         tickFormatter={(value) => `£${(value / 1000).toFixed(0)}k`}
+                        tickLine={false}
+                        axisLine={false}
+                        dx={-8}
                     />
                     <Tooltip
                         content={<CustomTooltip />}
                     />
                     <Legend
-                        wrapperStyle={{ paddingTop: "20px" }}
+                        wrapperStyle={{ paddingTop: "24px", fontSize: "12px", fontWeight: 500, color: "#64748b" }}
                         iconType="circle"
+                        iconSize={8}
                     />
-                    <Bar dataKey="spendingThisYear" fill="#4ade80" name="Spending This Year" />
+                    {/* Spending Bar - rendered in background with low opacity */}
+                    <Bar dataKey="spendingThisYear" fill="#3b82f6" opacity={0.06} barSize={8} name="Spending This Year" />
+                    
                     <Area
                         type="monotone"
                         dataKey="contributions"
                         stroke="#10b981"
-                        strokeWidth={3}
+                        strokeWidth={2}
                         fill="none"
                         name="Total Contributions"
+                        dot={false}
                     />
                     <Area
                         type="monotone"
                         dataKey="withdrawals"
-                        stroke="#ef4444"
+                        stroke="#f43f5e"
                         strokeWidth={2}
                         fill="none"
                         name="Cumulative Withdrawals"
+                        dot={false}
                     />
                     <Area
                         type="monotone"
@@ -149,17 +146,19 @@ export default function PensionChart({ data }: PensionChartProps) {
                         strokeWidth={2}
                         fill="none"
                         name="Cumulative Pension Income"
+                        dot={false}
                     />
                     <Area
                         type="monotone"
                         dataKey="value"
                         stroke="#3b82f6"
-                        strokeWidth={3}
+                        strokeWidth={2.5}
                         fillOpacity={1}
                         fill="url(#colorValue)"
-                        name="Projected Value"
+                        name="Projected Pot"
+                        dot={false}
                     />
-                </AreaChart>
+                </ComposedChart>
             </ResponsiveContainer>
         </div>
     );
