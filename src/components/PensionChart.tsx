@@ -48,31 +48,31 @@ function CustomTooltip({ active, payload, label }: any) {
     if (active && payload && payload.length) {
         const point = payload[0].payload as any;
         return (
-            <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-xl text-xs space-y-2">
-                <div className="font-extrabold text-slate-800 border-b border-slate-100 pb-1">Age {label}</div>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-semibold text-slate-600">
-                    <span className="text-blue-500">Projected Pot:</span>
-                    <span className="text-right text-slate-800 font-bold">{formatCurrency(point.value)}</span>
+            <div className="bg-brand-surface rounded-xl border border-brand-border p-4 shadow-2xl text-xs space-y-2">
+                <div className="font-extrabold text-slate-100 border-b border-brand-border pb-1">Age {label}</div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-semibold text-brand-muted">
+                    <span className="text-brand-primary">Projected Pot:</span>
+                    <span className="text-right text-slate-100 font-bold">{formatCurrency(point.value)}</span>
 
-                    <span className="text-emerald-500">Total Contributions:</span>
-                    <span className="text-right text-slate-800">{formatCurrency(point.contributions)}</span>
+                    <span className="text-emerald-400">Total Contributions:</span>
+                    <span className="text-right text-slate-100">{formatCurrency(point.contributions)}</span>
 
-                    <span className="text-rose-500">Cumulative Withdrawals:</span>
-                    <span className="text-right text-slate-800">{formatCurrency(point.withdrawals)}</span>
+                    <span className="text-rose-400">Cumulative Withdrawals:</span>
+                    <span className="text-right text-slate-100">{formatCurrency(point.withdrawals)}</span>
 
-                    <span className="text-purple-500">Cumulative Income:</span>
-                    <span className="text-right text-slate-800">{formatCurrency(point.pensionIncome)}</span>
+                    <span className="text-purple-400">Cumulative Income:</span>
+                    <span className="text-right text-slate-100">{formatCurrency(point.pensionIncome)}</span>
 
                     {point.spendingThisYear !== undefined && (
                         <>
-                            <span className="text-slate-400 font-medium">Spending (this year):</span>
-                            <span className="text-right text-slate-700 font-medium">{formatCurrency(point.spendingThisYear)}</span>
+                            <span className="text-brand-muted font-medium">Spending (this year):</span>
+                            <span className="text-right text-slate-200 font-medium">{formatCurrency(point.spendingThisYear)}</span>
                         </>
                     )}
                     {point.withdrawalRate !== undefined && point.withdrawalRate !== 0 && (
                         <>
-                            <span className="text-amber-500 font-medium">Withdrawal Rate:</span>
-                            <span className="text-right text-slate-700 font-medium">{formatPct(point.withdrawalRate)}</span>
+                            <span className="text-brand-accent font-medium">Withdrawal Rate:</span>
+                            <span className="text-right text-slate-200 font-medium">{formatPct(point.withdrawalRate)}</span>
                         </>
                     )}
                 </div>
@@ -89,22 +89,22 @@ export default function PensionChart({ data }: PensionChartProps) {
                 <ComposedChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 10 }}>
                     <defs>
                         <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
-                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0}/>
+                            <stop offset="5%" stopColor="#00F0FF" stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor="#00F0FF" stopOpacity={0.0}/>
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1F2433" vertical={false} />
                     <XAxis
                         dataKey="year"
-                        tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 500 }}
-                        stroke="#e2e8f0"
+                        tick={{ fill: "#8B949E", fontSize: 11, fontWeight: 500 }}
+                        stroke="#1F2433"
                         tickLine={false}
                         axisLine={false}
                         dy={8}
                     />
                     <YAxis
-                        tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 500 }}
-                        stroke="#e2e8f0"
+                        tick={{ fill: "#8B949E", fontSize: 11, fontWeight: 500 }}
+                        stroke="#1F2433"
                         tickFormatter={(value) => `£${(value / 1000).toFixed(0)}k`}
                         tickLine={false}
                         axisLine={false}
@@ -114,12 +114,12 @@ export default function PensionChart({ data }: PensionChartProps) {
                         content={<CustomTooltip />}
                     />
                     <Legend
-                        wrapperStyle={{ paddingTop: "24px", fontSize: "12px", fontWeight: 500, color: "#64748b" }}
+                        wrapperStyle={{ paddingTop: "24px", fontSize: "12px", fontWeight: 500, color: "#8B949E" }}
                         iconType="circle"
                         iconSize={8}
                     />
                     {/* Spending Bar - rendered in background with low opacity */}
-                    <Bar dataKey="spendingThisYear" fill="#3b82f6" opacity={0.06} barSize={8} name="Spending This Year" />
+                    <Bar dataKey="spendingThisYear" fill="#00F0FF" opacity={0.06} barSize={8} name="Spending This Year" />
                     
                     <Area
                         type="monotone"
@@ -151,7 +151,7 @@ export default function PensionChart({ data }: PensionChartProps) {
                     <Area
                         type="monotone"
                         dataKey="value"
-                        stroke="#3b82f6"
+                        stroke="#00F0FF"
                         strokeWidth={2.5}
                         fillOpacity={1}
                         fill="url(#colorValue)"
